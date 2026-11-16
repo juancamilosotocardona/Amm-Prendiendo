@@ -35,10 +35,10 @@
 
       <p class="chooser-copy">¿Qué tipo de contenido quieres subir para este planeta?</p>
       <div class="chooser-grid">
-        <a href="" class="choice-card" data-media="pdf">
+        <a href="" class="choice-card" data-media="document">
           <span class="choice-icon">PDF</span>
           <strong>Documento</strong>
-          <small>Guías, fichas o materiales</small>
+          <small>PDF, Word o PowerPoint</small>
         </a>
         <a href="" class="choice-card" data-media="image">
           <span class="choice-icon">IMG</span>
@@ -114,7 +114,10 @@
       selectedCategory = planetSlug;
       title.textContent = planetName;
       choiceLinks.forEach((link) => {
-        link.href = `/panel/publicacion/nueva/?category=${encodeURIComponent(planetSlug)}&type=${encodeURIComponent(link.dataset.media)}`;
+        const documentOnly = planetSlug === 'sol';
+        link.hidden = documentOnly ? link.dataset.media !== 'document' : link.dataset.media === 'document';
+        const mediaType = documentOnly ? 'document' : link.dataset.media;
+        link.href = `/panel/publicacion/nueva/?category=${encodeURIComponent(planetSlug)}&type=${encodeURIComponent(mediaType)}`;
       });
       modal.hidden = false;
     };

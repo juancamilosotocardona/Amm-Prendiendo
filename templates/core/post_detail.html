@@ -27,7 +27,7 @@
 
   {% if post.attachment %}
     <div class="attachment-block">
-      <a href="{{ post.attachment.url }}" target="_blank" rel="noreferrer">Descargar archivo adjunto</a>
+      <a href="{{ post.attachment.url }}" target="_blank" rel="noreferrer">{% if post.category.slug == 'sol' %}Descargar documento{% else %}Descargar archivo adjunto{% endif %}</a>
     </div>
   {% endif %}
 </section>

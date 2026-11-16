@@ -669,10 +669,27 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const solarPlanets = builtPlanetCatalog.map((planet, index) => buildPlanet(planet, index));
+  const sunCategory = backendCategories.find((category) => category.slug === 'sol');
+  const sunLabel = makeLabelSprite('Sol · Documentos');
+  sunLabel.position.set(0, 17, 0);
+  sun.add(sunLabel);
+  labelSprites.push(sunLabel);
+
+  const sunMeta = {
+    key: 'sol',
+    name: 'Sol',
+    displayName: 'Sol · Documentos',
+    description: sunCategory?.description || 'Documentos educativos en PDF, Word y PowerPoint.',
+    posts: sunCategory?.posts || [],
+    mesh: sun,
+  };
+  planetMap.set('sol', sunMeta);
+  planetMeshes.push(sun);
+
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
-  const getPlanetMeta = (planetKey) => solarPlanets.find((planet) => planet.key === planetKey);
+  const getPlanetMeta = (planetKey) => planetMap.get(planetKey);
 
   const renderPlanetInfoPanel = (planet) => {
     if (!planetInfoPanel || !planetInfoTitle || !planetInfoDescription || !planetInfoMeta || !planetInfoPosts) return;
@@ -687,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       planetInfoPosts.innerHTML = posts.map((post) => {
         const mediaLinks = [];
-        if (post.attachment) mediaLinks.push(`<a href="${post.attachment}" target="_blank" rel="noreferrer">PDF/archivo</a>`);
+        if (post.attachment) mediaLinks.push(`<a href="${post.attachment}" target="_blank" rel="noreferrer">${planet.key === 'sol' ? 'Descargar documento' : 'PDF/archivo'}</a>`);
         if (post.video_url) mediaLinks.push(`<a href="${post.video_url}" target="_blank" rel="noreferrer">Video</a>`);
         return `
           <article class="planet-post-card">
@@ -715,8 +732,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectPlanet = (planetKey) => {
     const planet = getPlanetMeta(planetKey);
     if (!planet) return;
+    if (selectedPlanet && selectedPlanet.key !== planetKey) {
+      const previousAspect = targetPlanetReference[selectedPlanet.key]?.aspect ?? 1;
+      selectedPlanet.mesh.scale.set(previousAspect, 1, 1);
+      selectedPlanet.mesh.material.emissiveIntensity = selectedPlanet.key === 'sol' ? 2.5 : 0.18;
+    }
     selectedPlanet = planet;
-    planet.mesh.material.emissiveIntensity = 0.7;
+    planet.mesh.material.emissiveIntensity = planet.key === 'sol' ? 3.2 : 0.7;
     const aspect = targetPlanetReference[planet.key]?.aspect ?? 1;
     planet.mesh.scale.set(aspect * 1.12, 1.12, 1.12);
     renderPlanetInfoPanel(planet);
@@ -726,7 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const deselectPlanet = () => {
     if (!selectedPlanet) return;
-    selectedPlanet.mesh.material.emissiveIntensity = 0.18;
+    selectedPlanet.mesh.material.emissiveIntensity = selectedPlanet.key === 'sol' ? 2.5 : 0.18;
     const aspect = targetPlanetReference[selectedPlanet.key]?.aspect ?? 1;
     selectedPlanet.mesh.scale.set(aspect, 1, 1);
     selectedPlanet = null;
@@ -742,10 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const focusSunView = () => {
-    selectedPlanet = null;
-    controls.target.set(0, 0, 0);
-    camera.position.set(140, 100, 220);
-    hideInfoPanel();
+    selectPlanet('sol');
   };
 
   if (togglePauseButton) {

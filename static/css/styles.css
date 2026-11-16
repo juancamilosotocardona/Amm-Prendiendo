@@ -733,6 +733,20 @@ canvas {
   min-width: 120px;
 }
 
+.document-guidance {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 14px;
+  background: rgba(120, 83, 18, 0.18);
+  color: #fde68a;
+  line-height: 1.5;
+}
+
+.document-guidance[hidden] {
+  display: none;
+}
+
 .planet-strip {
   display: flex;
   flex-wrap: wrap;
@@ -955,6 +969,10 @@ canvas {
   color: #f8fafc;
   text-decoration: none;
   transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.choice-card[hidden] {
+  display: none;
 }
 
 .choice-card:hover {

@@ -10,6 +10,7 @@ from django.utils.text import slugify
 
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png'}
 ALLOWED_ATTACHMENT_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png', 'docx', 'pptx'}
+ALLOWED_DOCUMENT_EXTENSIONS = {'pdf', 'docx', 'pptx'}
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 
 
@@ -59,6 +60,14 @@ def ensure_default_categories(sender=None, **kwargs):
     editor_group.permissions.set(editor_permissions)
 
     defaults = [
+        {
+            'slug': 'sol',
+            'name': 'Sol',
+            'description': 'Documentos educativos para consultar y descargar. Solo se publican archivos PDF, Word o PowerPoint.',
+            'accent_color': '#fbbf24',
+            'orbit_color': '#fbbf24',
+            'order': 0,
+        },
         {
             'slug': 'mercurio',
             'name': 'Motricidad y coordinación corporal',

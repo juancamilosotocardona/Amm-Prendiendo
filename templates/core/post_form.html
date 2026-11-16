@@ -3,11 +3,40 @@
 {% block content %}
 <section class="container form-shell">
   <h1>{{ title }}</h1>
-  <form method="post" enctype="multipart/form-data" class="stacked-form">
+  <p class="document-guidance" {% if selected_category != 'sol' %}hidden{% endif %}>El Sol es exclusivo para documentos educativos. Adjunta un archivo PDF, Word (DOCX) o PowerPoint (PPTX); no se admiten fotos, videos ni publicaciones sin archivo.</p>
+  <form method="post" enctype="multipart/form-data" class="stacked-form" data-editing="{% if post %}true{% else %}false{% endif %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="primary-button">Guardar</button>
     <a href="{% url 'dashboard' %}" class="secondary-button">Cancelar</a>
   </form>
 </section>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('.stacked-form');
+    const category = form?.querySelector('[name="category"]');
+    const sunNote = document.querySelector('.document-guidance');
+    const attachment = form?.querySelector('[name="attachment"]');
+    const coverImage = form?.querySelector('[name="cover_image"]');
+    const videoUrl = form?.querySelector('[name="video_url"]');
+    const isEditing = form?.dataset.editing === 'true';
+    if (!category || !attachment) return;
+
+    const updateDocumentFields = () => {
+      const isSun = category.value === category.dataset.sunCategory;
+      if (sunNote) sunNote.hidden = !isSun;
+      if (coverImage?.closest('p')) coverImage.closest('p').hidden = isSun && !isEditing;
+      if (videoUrl?.closest('p')) videoUrl.closest('p').hidden = isSun && !isEditing;
+      attachment.accept = isSun ? '.pdf,.docx,.pptx' : '';
+      attachment.required = isSun && !isEditing;
+      if (isSun && !isEditing) {
+        if (coverImage) coverImage.value = '';
+        if (videoUrl) videoUrl.value = '';
+      }
+    };
+
+    category.addEventListener('change', updateDocumentFields);
+    updateDocumentFields();
+  });
+</script>
 {% endblock %}

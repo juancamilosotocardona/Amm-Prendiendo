@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
 from .forms import CategoryForm, PostForm
-from .models import Category, Post
+from .models import ALLOWED_DOCUMENT_EXTENSIONS, Category, Post
 
 
 def generate_unique_slug(model_class, value, current_object=None, field_name='slug'):
@@ -37,16 +37,40 @@ def require_content_manager(view_func):
     return decorated
 
 
+def sun_document_posts(queryset):
+    document_types = Q()
+    for extension in ALLOWED_DOCUMENT_EXTENSIONS:
+        document_types |= Q(attachment__iendswith=f'.{extension}')
+
+    return queryset.filter(
+        document_types,
+        Q(cover_image__isnull=True) | Q(cover_image=''),
+        video_url='',
+    )
+
+
+def is_sun_document(post):
+    if post.category.slug != 'sol':
+        return True
+    extension = post.attachment.name.rsplit('.', 1)[-1].lower() if post.attachment else ''
+    return (
+        extension in ALLOWED_DOCUMENT_EXTENSIONS
+        and not post.cover_image
+        and not post.video_url
+    )
+
+
 def home(request):
+    published_posts = Post.objects.filter(status=Post.PUBLISHED).select_related('category', 'author')
     categories = Category.objects.filter(is_active=True).prefetch_related(
         Prefetch(
             'posts',
-            queryset=Post.objects.filter(status=Post.PUBLISHED).select_related('category', 'author').order_by('-created_at'),
+            queryset=published_posts.order_by('-created_at'),
             to_attr='published_posts'
         )
     )
-    featured_posts = Post.objects.filter(status=Post.PUBLISHED).select_related('category', 'author')[:3]
-    recent_posts = Post.objects.filter(status=Post.PUBLISHED).select_related('category', 'author')[:6]
+    featured_posts = published_posts[:3]
+    recent_posts = published_posts[:6]
 
     category_data = []
     for category in categories:
@@ -66,6 +90,7 @@ def home(request):
                     'created_at': post.created_at.isoformat(),
                 }
                 for post in getattr(category, 'published_posts', [])
+                if is_sun_document(post)
             ],
         })
 
@@ -80,6 +105,8 @@ def home(request):
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug, is_active=True)
     posts = category.posts.filter(status=Post.PUBLISHED).select_related('category', 'author')
+    if category.slug == 'sol':
+        posts = sun_document_posts(posts)
     return render(request, 'core/category_detail.html', {
         'category': category,
         'posts': posts,
@@ -90,6 +117,8 @@ def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
     if post.status != Post.PUBLISHED and not user_can_manage_content(request.user):
         raise Http404('Publicación no disponible.')
+    if not is_sun_document(post) and not user_can_manage_content(request.user):
+        raise Http404('Documento no disponible.')
     return render(request, 'core/post_detail.html', {'post': post})
 
 
@@ -211,7 +240,15 @@ def post_create(request):
         form = PostForm(initial=initial)
 
     if media_type:
-        messages.info(request, f'Preparando carga de {media_type.upper()} para el planeta seleccionado.')
+        media_labels = {
+            'document': 'documento',
+            'pdf': 'documento PDF',
+            'image': 'foto',
+            'video': 'video',
+            'text': 'texto',
+        }
+        media_label = media_labels.get(media_type, media_type)
+        messages.info(request, f'Preparando carga de {media_label} para el planeta seleccionado.')
 
     return render(request, 'core/post_form.html', {
         'form': form,
