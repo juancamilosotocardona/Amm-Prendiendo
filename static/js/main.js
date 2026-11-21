@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const backendCategories = planetDataScript ? JSON.parse(planetDataScript.textContent) : [];
 
   const defaultPlanetCatalog = [
-    { key: 'cerebro', name: 'Cerebro', diameter: '1.400 km', distance: '0 M km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ff6b6b', orbitSpeed: 0.005, radius: 3.8, distanceScale: 12 },
+    { key: 'cerebro', name: 'Cerebro', diameter: '1.400 km', distance: '5.9 B km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ff6b6b', orbitSpeed: 0.003, radius: 4.2, distanceScale: 240 },
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
     { key: 'venus', name: 'Venus', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
     { key: 'tierra', name: 'Tierra', diameter: '12.742 km', distance: '149.6 M km', day: '24 h', year: '365 días', temperature: '15°C', composition: 'Nitrógeno, oxígeno, silicio', moons: 1, color: '#3aa9ff', orbitSpeed: 0.038, radius: 3.6, distanceScale: 42 },
@@ -418,33 +418,62 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.arc(width / 2, height / 2, Math.min(width, height) * 0.42, 0, Math.PI * 2);
     ctx.clip();
 
-    ctx.strokeStyle = 'rgba(255, 100, 100, 0.6)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 50; i += 1) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const x2 = x + (Math.random() - 0.5) * 200;
-      const y2 = y + (Math.random() - 0.5) * 200;
+    // Draw left hemisphere folds
+    ctx.strokeStyle = 'rgba(200, 60, 60, 0.5)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 12; i += 1) {
+      const y = height * 0.2 + (i / 11) * height * 0.6;
+      const xStart = width * 0.15;
+      const xMid = width * 0.45 + Math.sin(i * 0.8) * 60;
+      const xEnd = width * 0.48;
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.bezierCurveTo(
-        x + (Math.random() - 0.5) * 100,
-        y + (Math.random() - 0.5) * 100,
-        x2 + (Math.random() - 0.5) * 100,
-        y2 + (Math.random() - 0.5) * 100,
-        x2, y2
-      );
+      ctx.moveTo(xStart, y);
+      ctx.bezierCurveTo(xMid - 30, y - 20, xMid + 20, y + 20, xEnd, y);
       ctx.stroke();
     }
 
-    for (let i = 0; i < 30; i += 1) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const size = 8 + Math.random() * 16;
-      ctx.fillStyle = i % 3 === 0 ? '#ffcccc' : '#ffaaaa';
+    // Draw right hemisphere folds
+    for (let i = 0; i < 12; i += 1) {
+      const y = height * 0.2 + (i / 11) * height * 0.6;
+      const xStart = width * 0.52;
+      const xMid = width * 0.55 + Math.sin(i * 0.8 + 1) * 60;
+      const xEnd = width * 0.85;
       ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.moveTo(xStart, y);
+      ctx.bezierCurveTo(xMid - 20, y - 20, xMid + 30, y + 20, xEnd, y);
+      ctx.stroke();
+    }
+
+    // Central fissure (deep groove between hemispheres)
+    ctx.strokeStyle = 'rgba(150, 40, 40, 0.7)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(width * 0.5, height * 0.15);
+    ctx.bezierCurveTo(
+      width * 0.49, height * 0.3,
+      width * 0.51, height * 0.5,
+      width * 0.5, height * 0.85
+    );
+    ctx.stroke();
+
+    // Subtle highlight on folds
+    ctx.strokeStyle = 'rgba(255, 220, 220, 0.4)';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 8; i += 1) {
+      const y = height * 0.25 + (i / 7) * height * 0.5;
+      const xMid = width * 0.45 + Math.sin(i * 0.9) * 40;
+      ctx.beginPath();
+      ctx.moveTo(width * 0.2, y);
+      ctx.bezierCurveTo(xMid - 15, y - 10, xMid + 10, y + 10, width * 0.48, y);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 8; i += 1) {
+      const y = height * 0.25 + (i / 7) * height * 0.5;
+      const xMid = width * 0.55 + Math.sin(i * 0.9 + 1) * 40;
+      ctx.beginPath();
+      ctx.moveTo(width * 0.52, y);
+      ctx.bezierCurveTo(xMid - 10, y - 10, xMid + 15, y + 10, width * 0.8, y);
+      ctx.stroke();
     }
 
     ctx.restore();
@@ -719,19 +748,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const buildPlanet = (planet, index) => {
     const orbit = new THREE.Object3D();
-    orbit.rotation.x = (index % 2 === 0 ? 0.4 : -0.3) + (planet.name === 'Mercurio' ? 0.2 : 0);
+    
+    // Special orbit for brain planet - highly inclined and elliptical
+    if (planet.key === 'cerebro') {
+      orbit.rotation.x = Math.PI / 3; // 60 degree inclination
+      orbit.rotation.z = Math.PI / 6; // 30 degree tilt
+    } else {
+      orbit.rotation.x = (index % 2 === 0 ? 0.4 : -0.3) + (planet.name === 'Mercurio' ? 0.2 : 0);
+    }
     orbitGroup.add(orbit);
 
-    const orbitCurve = new THREE.EllipseCurve(
-      0,
-      0,
-      planet.distanceScale,
-      planet.distanceScale * 0.78,
-      0,
-      Math.PI * 2,
-      false,
-      0
-    );
+    // Special elliptical orbit for brain planet
+    let orbitCurve;
+    if (planet.key === 'cerebro') {
+      orbitCurve = new THREE.EllipseCurve(
+        0,
+        0,
+        planet.distanceScale * 1.15, // wider
+        planet.distanceScale * 0.45, // more elliptical
+        0,
+        Math.PI * 2,
+        false,
+        0
+      );
+    } else {
+      orbitCurve = new THREE.EllipseCurve(
+        0,
+        0,
+        planet.distanceScale,
+        planet.distanceScale * 0.78,
+        0,
+        Math.PI * 2,
+        false,
+        0
+      );
+    }
     const points = orbitCurve.getPoints(240).map((point) => new THREE.Vector3(point.x, 0, point.y));
     const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
     const orbitLine = new THREE.Line(
