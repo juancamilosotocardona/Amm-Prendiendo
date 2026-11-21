@@ -1010,6 +1010,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectPlanet = (planetKey) => {
     const planet = getPlanetMeta(planetKey);
     if (!planet) return;
+    
+    // Skip interaction for brain planet - just fly rocket there
+    if (planetKey === 'cerebro') {
+      flyRocketTo(planet);
+      return;
+    }
+    
     flyRocketTo(planet);
     if (selectedPlanet && selectedPlanet.key !== planetKey) {
       const previousAspect = targetPlanetReference[selectedPlanet.key]?.aspect ?? 1;
