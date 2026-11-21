@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const backendCategories = planetDataScript ? JSON.parse(planetDataScript.textContent) : [];
 
   const defaultPlanetCatalog = [
-    { key: 'cerebro', name: 'Cerebro', diameter: '1.400 km', distance: '5.9 B km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ff6b6b', orbitSpeed: 0.003, radius: 4.2, distanceScale: 240 },
+    { key: 'cerebro', name: 'Cerebro', diameter: '1.400 km', distance: '5.9 B km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ffaaaa', orbitSpeed: 0.003, radius: 4.2, distanceScale: 240 },
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
     { key: 'venus', name: 'Venus', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
     { key: 'tierra', name: 'Tierra', diameter: '12.742 km', distance: '149.6 M km', day: '24 h', year: '365 días', temperature: '15°C', composition: 'Nitrógeno, oxígeno, silicio', moons: 1, color: '#3aa9ff', orbitSpeed: 0.038, radius: 3.6, distanceScale: 42 },
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const targetPlanetReference = {
-    cerebro: { label: 'Planeta Cerebro', texture: null, aspect: 1.0 },
+    cerebro: { label: '', texture: null, aspect: 1.0 },
     venus: { label: 'Planeta Creación', texture: '/static/images/planeta-creacion.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     mercurio: { label: 'Motricidad y coordinación corporal', texture: '/static/images/planeta-logica.png', aspect: 1.18 },
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const createBrainGeometry = (radius) => {
-    const geometry = new THREE.SphereGeometry(radius, 64, 64);
+    const geometry = new THREE.SphereGeometry(radius, 128, 128);
     const positions = geometry.attributes.position;
     const newPositions = new Float32Array(positions.count * 3);
     
@@ -491,22 +491,27 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Create brain shape: two hemispheres separated by central fissure
       let newX = x;
-      if (Math.abs(x) < radius * 0.3) {
-        // Central fissure - push vertices inward
-        const fissureFactor = 1 - 0.15 * (1 - Math.abs(x) / (radius * 0.3));
+      if (Math.abs(x) < radius * 0.35) {
+        // Central fissure - push vertices inward deeper
+        const fissureFactor = 1 - 0.22 * (1 - Math.abs(x) / (radius * 0.35));
         newX = x * fissureFactor;
       } else if (x > 0) {
-        // Right hemisphere - slightly offset
-        newX = x + 0.08 * radius * (y / radius);
+        // Right hemisphere - slightly offset outward
+        newX = x + 0.1 * radius * (y / radius);
       } else {
-        // Left hemisphere - slightly offset
-        newX = x - 0.08 * radius * (y / radius);
+        // Left hemisphere - slightly offset outward
+        newX = x - 0.1 * radius * (y / radius);
       }
       
-      // Add subtle gyri/sulci variation
+      // Add detailed gyri/sulci variation (brain folds)
       const theta = Math.atan2(z, newX);
-      const phi = Math.acos(y / radius);
-      const gyriNoise = Math.sin(theta * 8) * Math.sin(phi * 6) * 0.02;
+      const phi = Math.acos(Math.max(-1, Math.min(1, y / radius)));
+      
+      // Multiple frequency noise for realistic brain texture
+      const gyriNoise = 
+        Math.sin(theta * 12) * Math.sin(phi * 8) * 0.025 +
+        Math.sin(theta * 6) * Math.sin(phi * 14) * 0.015 +
+        Math.sin(theta * 18) * Math.sin(phi * 4) * 0.01;
       const scale = 1 + gyriNoise;
       
       newPositions[i * 3] = newX * scale;
@@ -559,6 +564,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const createPlanetMaterial = (planetKey, planetColor) => {
     const texture = createPlanetTexture(planetKey);
+    
+    // Special material for brain - brighter, more organic look
+    if (planetKey === 'cerebro') {
+      return new THREE.MeshStandardMaterial({
+        map: texture,
+        color: 0xffcccc, // Brighter pink base
+        emissive: new THREE.Color(0xff8888),
+        emissiveIntensity: 0.35,
+        roughness: 0.7,
+        metalness: 0.05,
+        transparent: false,
+      });
+    }
+    
     return new THREE.MeshStandardMaterial({
       map: texture,
       color: planetColor,
@@ -790,6 +809,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const labelText = reference ? reference.label : planet.name;
     const label = makeLabelSprite(labelText);
     label.position.set(0, planet.radius + 5, 0);
+    // Hide label for brain planet
+    if (planet.key === 'cerebro') {
+      label.visible = false;
+    }
     mesh.add(label);
     labelSprites.push(label);
 
