@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const backendCategories = planetDataScript ? JSON.parse(planetDataScript.textContent) : [];
 
   const defaultPlanetCatalog = [
+    { key: 'cerebro', name: 'Cerebro', diameter: '1.400 km', distance: '0 M km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ff6b6b', orbitSpeed: 0.005, radius: 3.8, distanceScale: 12 },
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
     { key: 'venus', name: 'Venus', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
     { key: 'tierra', name: 'Tierra', diameter: '12.742 km', distance: '149.6 M km', day: '24 h', year: '365 días', temperature: '15°C', composition: 'Nitrógeno, oxígeno, silicio', moons: 1, color: '#3aa9ff', orbitSpeed: 0.038, radius: 3.6, distanceScale: 42 },
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const targetPlanetReference = {
+    cerebro: { label: 'Planeta Cerebro', texture: null, aspect: 1.0 },
     venus: { label: 'Planeta Creación', texture: '/static/images/planeta-creacion.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     mercurio: { label: 'Motricidad y coordinación corporal', texture: '/static/images/planeta-logica.png', aspect: 1.18 },
@@ -402,6 +404,52 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.restore();
   };
 
+  const drawBrainPlanet = (ctx, width, height) => {
+    const base = ctx.createRadialGradient(width * 0.5, height * 0.5, 50, width * 0.5, height * 0.5, width * 0.55);
+    base.addColorStop(0, '#ffe0e0');
+    base.addColorStop(0.35, '#ffb3b3');
+    base.addColorStop(0.7, '#ff8c8c');
+    base.addColorStop(1, '#e86c6c');
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(width / 2, height / 2, Math.min(width, height) * 0.42, 0, Math.PI * 2);
+    ctx.clip();
+
+    ctx.strokeStyle = 'rgba(255, 100, 100, 0.6)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 50; i += 1) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const x2 = x + (Math.random() - 0.5) * 200;
+      const y2 = y + (Math.random() - 0.5) * 200;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(
+        x + (Math.random() - 0.5) * 100,
+        y + (Math.random() - 0.5) * 100,
+        x2 + (Math.random() - 0.5) * 100,
+        y2 + (Math.random() - 0.5) * 100,
+        x2, y2
+      );
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < 30; i += 1) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const size = 8 + Math.random() * 16;
+      ctx.fillStyle = i % 3 === 0 ? '#ffcccc' : '#ffaaaa';
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  };
+
   const createPlanetTexture = (planetKey) => {
     const reference = targetPlanetReference[planetKey];
     if (reference) {
@@ -419,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
 
     const handlers = {
+      cerebro: drawBrainPlanet,
       mercurio: drawCreationPlanet,
       venus: drawSportPlanet,
       tierra: drawPuzzlePlanet,
@@ -522,6 +571,73 @@ document.addEventListener('DOMContentLoaded', () => {
         cone.rotation.z += Math.PI;
         decorations.add(cone);
       }
+    }
+
+    if (planetKey === 'cerebro') {
+      const rocketGroup = new THREE.Group();
+      const bodyMaterial = new THREE.MeshStandardMaterial({
+        color: 0xe7f4ff,
+        roughness: 0.42,
+        metalness: 0.35,
+      });
+      const accentMaterial = new THREE.MeshStandardMaterial({
+        color: 0xef5350,
+        roughness: 0.55,
+        metalness: 0.18,
+      });
+
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 1.1, 12), bodyMaterial);
+      body.rotation.x = Math.PI / 2;
+      rocketGroup.add(body);
+
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.6, 12), accentMaterial);
+      nose.rotation.x = Math.PI / 2;
+      nose.position.z = 0.8;
+      rocketGroup.add(nose);
+
+      const window = new THREE.Mesh(
+        new THREE.SphereGeometry(0.15, 12, 12),
+        new THREE.MeshStandardMaterial({
+          color: 0x38bdf8,
+          emissive: 0x075985,
+          emissiveIntensity: 0.7,
+          metalness: 0.55,
+          roughness: 0.2,
+        })
+      );
+      window.scale.set(1, 1, 0.35);
+      window.position.z = 0.25;
+      rocketGroup.add(window);
+
+      [-1, 1].forEach((side) => {
+        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.35), accentMaterial);
+        fin.position.set(side * 0.28, 0, -0.4);
+        fin.rotation.z = side * 0.15;
+        rocketGroup.add(fin);
+      });
+
+      const exhaust = new THREE.Group();
+      const outerFlame = new THREE.Mesh(
+        new THREE.ConeGeometry(0.22, 0.65, 10),
+        new THREE.MeshBasicMaterial({ color: 0xf97316 })
+      );
+      outerFlame.rotation.x = -Math.PI / 2;
+      outerFlame.position.z = -0.8;
+      exhaust.add(outerFlame);
+
+      const innerFlame = new THREE.Mesh(
+        new THREE.ConeGeometry(0.13, 0.45, 10),
+        new THREE.MeshBasicMaterial({ color: 0xfde047 })
+      );
+      innerFlame.rotation.x = -Math.PI / 2;
+      innerFlame.position.z = -0.75;
+      exhaust.add(innerFlame);
+      rocketGroup.add(exhaust);
+      exhaust.visible = false;
+
+      rocketGroup.position.set(0, radius * 1.4, 0);
+      rocketGroup.rotation.z = Math.PI;
+      decorations.add(rocketGroup);
     }
 
     if (planetKey === 'mercurio') {
@@ -766,7 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const { rocket, exhaust } = createRocket();
-  let rocketDestination = getPlanetMeta('tierra');
+  let rocketDestination = getPlanetMeta('cerebro');
   let rocketFlight = null;
   const initialRocketPosition = getRocketLandingPosition(rocketDestination);
   rocket.position.copy(initialRocketPosition);
