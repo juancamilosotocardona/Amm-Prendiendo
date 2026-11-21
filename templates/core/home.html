@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Planetas Educativos | Inicio{% endblock %}
+{% block title %}Amm-Prendiendo | Inicio{% endblock %}
 {% block content %}
 {% if category_data %}
   {{ category_data|json_script:"planet-data" }}
@@ -9,7 +9,7 @@
 <section class="home-page">
   <div class="entry-gate" id="entryGate" role="dialog" aria-modal="true" aria-labelledby="entryGateTitle" data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     <div class="entry-gate__panel">
-      <p class="eyebrow">Planetas Educativos</p>
+      <p class="eyebrow">Amm-Prendiendo</p>
       <h2 id="entryGateTitle">¿Cómo quieres entrar?</h2>
       <p>Inicia sesión si vas a publicar contenido, o entra como invitado para explorar el universo educativo.</p>
       <div class="entry-gate__actions">

@@ -690,6 +690,111 @@ document.addEventListener('DOMContentLoaded', () => {
   const pointer = new THREE.Vector2();
 
   const getPlanetMeta = (planetKey) => planetMap.get(planetKey);
+  const getRocketLandingPosition = (planet) => {
+    const center = planet.mesh.getWorldPosition(new THREE.Vector3());
+    const direction = center.lengthSq() > 0
+      ? center.clone().normalize()
+      : new THREE.Vector3(1, 0, 0);
+    const radius = planet.mesh.geometry.parameters.radius || 1;
+    return center.add(direction.multiplyScalar(radius + 1.5));
+  };
+
+  const createRocket = () => {
+    const rocket = new THREE.Group();
+    const bodyMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe7f4ff,
+      roughness: 0.42,
+      metalness: 0.35,
+    });
+    const accentMaterial = new THREE.MeshStandardMaterial({
+      color: 0xef5350,
+      roughness: 0.55,
+      metalness: 0.18,
+    });
+
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.4, 1.55, 16), bodyMaterial);
+    body.rotation.x = Math.PI / 2;
+    rocket.add(body);
+
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.82, 16), accentMaterial);
+    nose.rotation.x = Math.PI / 2;
+    nose.position.z = 1.16;
+    rocket.add(nose);
+
+    const window = new THREE.Mesh(
+      new THREE.SphereGeometry(0.2, 16, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        emissive: 0x075985,
+        emissiveIntensity: 0.7,
+        metalness: 0.55,
+        roughness: 0.2,
+      })
+    );
+    window.scale.set(1, 1, 0.35);
+    window.position.z = 0.32;
+    rocket.add(window);
+
+    [-1, 1].forEach((side) => {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.58, 0.5), accentMaterial);
+      fin.position.set(side * 0.38, 0, -0.58);
+      fin.rotation.z = side * 0.18;
+      rocket.add(fin);
+    });
+
+    const exhaust = new THREE.Group();
+    const outerFlame = new THREE.Mesh(
+      new THREE.ConeGeometry(0.31, 0.9, 12),
+      new THREE.MeshBasicMaterial({ color: 0xf97316 })
+    );
+    outerFlame.rotation.x = -Math.PI / 2;
+    outerFlame.position.z = -1.16;
+    exhaust.add(outerFlame);
+
+    const innerFlame = new THREE.Mesh(
+      new THREE.ConeGeometry(0.18, 0.62, 12),
+      new THREE.MeshBasicMaterial({ color: 0xfde047 })
+    );
+    innerFlame.rotation.x = -Math.PI / 2;
+    innerFlame.position.z = -1.1;
+    exhaust.add(innerFlame);
+    rocket.add(exhaust);
+    exhaust.visible = false;
+
+    scene.add(rocket);
+    return { rocket, exhaust };
+  };
+
+  const { rocket, exhaust } = createRocket();
+  let rocketDestination = getPlanetMeta('tierra');
+  let rocketFlight = null;
+  const initialRocketPosition = getRocketLandingPosition(rocketDestination);
+  rocket.position.copy(initialRocketPosition);
+  rocket.lookAt(initialRocketPosition.clone().add(initialRocketPosition.clone().normalize()));
+
+  const getRocketFlightPosition = (flight, progress) => {
+    const destination = getRocketLandingPosition(flight.target);
+    const position = flight.start.clone().lerp(destination, progress);
+    position.y += Math.sin(progress * Math.PI) * flight.arcHeight;
+    return position;
+  };
+
+  const flyRocketTo = (planet) => {
+    if (rocketDestination?.key === planet.key) return;
+
+    const start = rocket.position.clone();
+    const destination = getRocketLandingPosition(planet);
+    const distance = start.distanceTo(destination);
+    rocketDestination = planet;
+    rocketFlight = {
+      target: planet,
+      start,
+      startedAt: performance.now(),
+      duration: Math.min(3200, Math.max(1000, distance * 9)),
+      arcHeight: Math.max(5, distance * 0.16),
+    };
+    exhaust.visible = true;
+  };
 
   const renderPlanetInfoPanel = (planet) => {
     if (!planetInfoPanel || !planetInfoTitle || !planetInfoDescription || !planetInfoMeta || !planetInfoPosts) return;
@@ -732,6 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectPlanet = (planetKey) => {
     const planet = getPlanetMeta(planetKey);
     if (!planet) return;
+    flyRocketTo(planet);
     if (selectedPlanet && selectedPlanet.key !== planetKey) {
       const previousAspect = targetPlanetReference[selectedPlanet.key]?.aspect ?? 1;
       selectedPlanet.mesh.scale.set(previousAspect, 1, 1);
@@ -833,6 +939,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tick = () => {
     requestAnimationFrame(tick);
+
+    if (rocketFlight) {
+      const progress = Math.min(1, (performance.now() - rocketFlight.startedAt) / rocketFlight.duration);
+      rocket.position.copy(getRocketFlightPosition(rocketFlight, progress));
+      const nextProgress = Math.min(1, progress + 0.01);
+      const nextPosition = getRocketFlightPosition(rocketFlight, nextProgress);
+      if (nextPosition.distanceToSquared(rocket.position) > 0) {
+        rocket.lookAt(nextPosition);
+      }
+
+      if (progress === 1) {
+        rocket.position.copy(getRocketLandingPosition(rocketFlight.target));
+        const outward = rocket.position.clone().sub(rocketFlight.target.mesh.getWorldPosition(new THREE.Vector3())).normalize();
+        rocket.lookAt(rocket.position.clone().add(outward));
+        rocketFlight = null;
+        exhaust.visible = false;
+      }
+    } else if (rocketDestination) {
+      rocket.position.copy(getRocketLandingPosition(rocketDestination));
+      const outward = rocket.position.clone().sub(rocketDestination.mesh.getWorldPosition(new THREE.Vector3())).normalize();
+      rocket.lookAt(rocket.position.clone().add(outward));
+    }
 
     if (!paused) {
       const elapsed = performance.now() * 0.001;
