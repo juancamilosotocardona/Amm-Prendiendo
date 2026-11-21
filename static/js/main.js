@@ -479,6 +479,83 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.restore();
   };
 
+  const createBrainGeometry = (radius) => {
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+    const normals = [];
+    const uvs = [];
+    const indices = [];
+
+    const segments = 64;
+    const rings = 32;
+    const fissureDepth = 0.15;
+    const hemisphereOffset = 0.08;
+
+    for (let ring = 0; ring <= rings; ring += 1) {
+      const phi = (ring / rings) * Math.PI;
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
+
+      for (let seg = 0; seg <= segments; seg += 1) {
+        const theta = (seg / segments) * Math.PI * 2;
+        const sinTheta = Math.sin(theta);
+        const cosTheta = Math.cos(theta);
+
+        let x = sinPhi * cosTheta;
+        let y = cosPhi;
+        let z = sinPhi * sinTheta;
+
+        // Create brain shape: two hemispheres separated by central fissure
+        if (Math.abs(x) < 0.3) {
+          // Central fissure - push vertices inward
+          const fissureFactor = 1 - fissureDepth * (1 - Math.abs(x) / 0.3);
+          x *= fissureFactor;
+        } else if (x > 0) {
+          // Right hemisphere - slightly offset
+          x += hemisphereOffset * sinPhi;
+        } else {
+          // Left hemisphere - slightly offset
+          x -= hemisphereOffset * sinPhi;
+        }
+
+        // Add subtle gyri/sulci variation
+        const gyriNoise = Math.sin(theta * 8) * Math.sin(phi * 6) * 0.02;
+        const scale = 1 + gyriNoise;
+
+        positions.push(x * radius * scale, y * radius * scale, z * radius * scale);
+
+        // Normal (approximate)
+        const nx = x * scale;
+        const ny = y * scale;
+        const nz = z * scale;
+        const nlen = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        normals.push(nx / nlen, ny / nlen, nz / nlen);
+
+        uvs.push(seg / segments, ring / rings);
+      }
+    }
+
+    for (let ring = 0; ring < rings; ring += 1) {
+      for (let seg = 0; seg < segments; seg += 1) {
+        const a = ring * (segments + 1) + seg;
+        const b = ring * (segments + 1) + seg + 1;
+        const c = (ring + 1) * (segments + 1) + seg;
+        const d = (ring + 1) * (segments + 1) + seg + 1;
+        indices.push(a, c, b);
+        indices.push(b, c, d);
+      }
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    geometry.computeBoundingSphere();
+
+    return geometry;
+  };
+
   const createPlanetTexture = (planetKey) => {
     const reference = targetPlanetReference[planetKey];
     if (reference) {
@@ -600,73 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cone.rotation.z += Math.PI;
         decorations.add(cone);
       }
-    }
-
-    if (planetKey === 'cerebro') {
-      const rocketGroup = new THREE.Group();
-      const bodyMaterial = new THREE.MeshStandardMaterial({
-        color: 0xe7f4ff,
-        roughness: 0.42,
-        metalness: 0.35,
-      });
-      const accentMaterial = new THREE.MeshStandardMaterial({
-        color: 0xef5350,
-        roughness: 0.55,
-        metalness: 0.18,
-      });
-
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 1.1, 12), bodyMaterial);
-      body.rotation.x = Math.PI / 2;
-      rocketGroup.add(body);
-
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.6, 12), accentMaterial);
-      nose.rotation.x = Math.PI / 2;
-      nose.position.z = 0.8;
-      rocketGroup.add(nose);
-
-      const window = new THREE.Mesh(
-        new THREE.SphereGeometry(0.15, 12, 12),
-        new THREE.MeshStandardMaterial({
-          color: 0x38bdf8,
-          emissive: 0x075985,
-          emissiveIntensity: 0.7,
-          metalness: 0.55,
-          roughness: 0.2,
-        })
-      );
-      window.scale.set(1, 1, 0.35);
-      window.position.z = 0.25;
-      rocketGroup.add(window);
-
-      [-1, 1].forEach((side) => {
-        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.35), accentMaterial);
-        fin.position.set(side * 0.28, 0, -0.4);
-        fin.rotation.z = side * 0.15;
-        rocketGroup.add(fin);
-      });
-
-      const exhaust = new THREE.Group();
-      const outerFlame = new THREE.Mesh(
-        new THREE.ConeGeometry(0.22, 0.65, 10),
-        new THREE.MeshBasicMaterial({ color: 0xf97316 })
-      );
-      outerFlame.rotation.x = -Math.PI / 2;
-      outerFlame.position.z = -0.8;
-      exhaust.add(outerFlame);
-
-      const innerFlame = new THREE.Mesh(
-        new THREE.ConeGeometry(0.13, 0.45, 10),
-        new THREE.MeshBasicMaterial({ color: 0xfde047 })
-      );
-      innerFlame.rotation.x = -Math.PI / 2;
-      innerFlame.position.z = -0.75;
-      exhaust.add(innerFlame);
-      rocketGroup.add(exhaust);
-      exhaust.visible = false;
-
-      rocketGroup.position.set(0, radius * 1.4, 0);
-      rocketGroup.rotation.z = Math.PI;
-      decorations.add(rocketGroup);
     }
 
     if (planetKey === 'mercurio') {
@@ -793,8 +803,14 @@ document.addEventListener('DOMContentLoaded', () => {
     orbitMeshes.push(orbitLine);
 
     const reference = targetPlanetReference[planet.key];
+    let planetGeometry;
+    if (planet.key === 'cerebro') {
+      planetGeometry = createBrainGeometry(planet.radius);
+    } else {
+      planetGeometry = new THREE.SphereGeometry(planet.radius, 64, 64);
+    }
     const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(planet.radius, 64, 64),
+      planetGeometry,
       createPlanetMaterial(planet.key, planet.color)
     );
     mesh.position.set(planet.distanceScale, 0, 0);
@@ -879,17 +895,19 @@ document.addEventListener('DOMContentLoaded', () => {
       metalness: 0.18,
     });
 
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.4, 1.55, 16), bodyMaterial);
+    // Scale factor to make rocket larger
+    const s = 1.4;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34 * s, 0.4 * s, 1.55 * s, 16), bodyMaterial);
     body.rotation.x = Math.PI / 2;
     rocket.add(body);
 
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.82, 16), accentMaterial);
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.34 * s, 0.82 * s, 16), accentMaterial);
     nose.rotation.x = Math.PI / 2;
-    nose.position.z = 1.16;
+    nose.position.z = 1.16 * s;
     rocket.add(nose);
 
     const window = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 16, 16),
+      new THREE.SphereGeometry(0.2 * s, 16, 16),
       new THREE.MeshStandardMaterial({
         color: 0x38bdf8,
         emissive: 0x075985,
@@ -899,31 +917,31 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     );
     window.scale.set(1, 1, 0.35);
-    window.position.z = 0.32;
+    window.position.z = 0.32 * s;
     rocket.add(window);
 
     [-1, 1].forEach((side) => {
-      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.58, 0.5), accentMaterial);
-      fin.position.set(side * 0.38, 0, -0.58);
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.14 * s, 0.58 * s, 0.5 * s), accentMaterial);
+      fin.position.set(side * 0.38 * s, 0, -0.58 * s);
       fin.rotation.z = side * 0.18;
       rocket.add(fin);
     });
 
     const exhaust = new THREE.Group();
     const outerFlame = new THREE.Mesh(
-      new THREE.ConeGeometry(0.31, 0.9, 12),
+      new THREE.ConeGeometry(0.31 * s, 0.9 * s, 12),
       new THREE.MeshBasicMaterial({ color: 0xf97316 })
     );
     outerFlame.rotation.x = -Math.PI / 2;
-    outerFlame.position.z = -1.16;
+    outerFlame.position.z = -1.16 * s;
     exhaust.add(outerFlame);
 
     const innerFlame = new THREE.Mesh(
-      new THREE.ConeGeometry(0.18, 0.62, 12),
+      new THREE.ConeGeometry(0.18 * s, 0.62 * s, 12),
       new THREE.MeshBasicMaterial({ color: 0xfde047 })
     );
     innerFlame.rotation.x = -Math.PI / 2;
-    innerFlame.position.z = -1.1;
+    innerFlame.position.z = -1.1 * s;
     exhaust.add(innerFlame);
     rocket.add(exhaust);
     exhaust.visible = false;
