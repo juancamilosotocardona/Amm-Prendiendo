@@ -480,79 +480,44 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const createBrainGeometry = (radius) => {
-    const geometry = new THREE.BufferGeometry();
-    const positions = [];
-    const normals = [];
-    const uvs = [];
-    const indices = [];
-
-    const segments = 64;
-    const rings = 32;
-    const fissureDepth = 0.15;
-    const hemisphereOffset = 0.08;
-
-    for (let ring = 0; ring <= rings; ring += 1) {
-      const phi = (ring / rings) * Math.PI;
-      const sinPhi = Math.sin(phi);
-      const cosPhi = Math.cos(phi);
-
-      for (let seg = 0; seg <= segments; seg += 1) {
-        const theta = (seg / segments) * Math.PI * 2;
-        const sinTheta = Math.sin(theta);
-        const cosTheta = Math.cos(theta);
-
-        let x = sinPhi * cosTheta;
-        let y = cosPhi;
-        let z = sinPhi * sinTheta;
-
-        // Create brain shape: two hemispheres separated by central fissure
-        if (Math.abs(x) < 0.3) {
-          // Central fissure - push vertices inward
-          const fissureFactor = 1 - fissureDepth * (1 - Math.abs(x) / 0.3);
-          x *= fissureFactor;
-        } else if (x > 0) {
-          // Right hemisphere - slightly offset
-          x += hemisphereOffset * sinPhi;
-        } else {
-          // Left hemisphere - slightly offset
-          x -= hemisphereOffset * sinPhi;
-        }
-
-        // Add subtle gyri/sulci variation
-        const gyriNoise = Math.sin(theta * 8) * Math.sin(phi * 6) * 0.02;
-        const scale = 1 + gyriNoise;
-
-        positions.push(x * radius * scale, y * radius * scale, z * radius * scale);
-
-        // Normal (approximate)
-        const nx = x * scale;
-        const ny = y * scale;
-        const nz = z * scale;
-        const nlen = Math.sqrt(nx * nx + ny * ny + nz * nz);
-        normals.push(nx / nlen, ny / nlen, nz / nlen);
-
-        uvs.push(seg / segments, ring / rings);
+    const geometry = new THREE.SphereGeometry(radius, 64, 64);
+    const positions = geometry.attributes.position;
+    const newPositions = new Float32Array(positions.count * 3);
+    
+    for (let i = 0; i < positions.count; i += 1) {
+      const x = positions.getX(i);
+      const y = positions.getY(i);
+      const z = positions.getZ(i);
+      
+      // Create brain shape: two hemispheres separated by central fissure
+      let newX = x;
+      if (Math.abs(x) < radius * 0.3) {
+        // Central fissure - push vertices inward
+        const fissureFactor = 1 - 0.15 * (1 - Math.abs(x) / (radius * 0.3));
+        newX = x * fissureFactor;
+      } else if (x > 0) {
+        // Right hemisphere - slightly offset
+        newX = x + 0.08 * radius * (y / radius);
+      } else {
+        // Left hemisphere - slightly offset
+        newX = x - 0.08 * radius * (y / radius);
       }
+      
+      // Add subtle gyri/sulci variation
+      const theta = Math.atan2(z, newX);
+      const phi = Math.acos(y / radius);
+      const gyriNoise = Math.sin(theta * 8) * Math.sin(phi * 6) * 0.02;
+      const scale = 1 + gyriNoise;
+      
+      newPositions[i * 3] = newX * scale;
+      newPositions[i * 3 + 1] = y * scale;
+      newPositions[i * 3 + 2] = z * scale;
     }
-
-    for (let ring = 0; ring < rings; ring += 1) {
-      for (let seg = 0; seg < segments; seg += 1) {
-        const a = ring * (segments + 1) + seg;
-        const b = ring * (segments + 1) + seg + 1;
-        const c = (ring + 1) * (segments + 1) + seg;
-        const d = (ring + 1) * (segments + 1) + seg + 1;
-        indices.push(a, c, b);
-        indices.push(b, c, d);
-      }
-    }
-
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    geometry.setIndex(indices);
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, 3));
     geometry.computeVertexNormals();
     geometry.computeBoundingSphere();
-
+    
     return geometry;
   };
 
