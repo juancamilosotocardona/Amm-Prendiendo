@@ -896,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Scale factor to make rocket larger
-    const s = 1.4;
+    const s = 2.0;
     const body = new THREE.Mesh(new THREE.CylinderGeometry(0.34 * s, 0.4 * s, 1.55 * s, 16), bodyMaterial);
     body.rotation.x = Math.PI / 2;
     rocket.add(body);
