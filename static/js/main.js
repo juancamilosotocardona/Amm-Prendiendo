@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const targetPlanetReference = {
-    cerebro: { label: '', texture: null, aspect: 1.0 },
+    cerebro: { label: 'Planeta Aprender', texture: '/static/images/planeta_base.jpeg', aspect: 1.0 },
     venus: { label: 'Planeta Creación', texture: '/static/images/planeta-creacion.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     mercurio: { label: 'Motricidad y coordinación corporal', texture: '/static/images/planeta-logica.png', aspect: 1.18 },
@@ -787,12 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
     orbitMeshes.push(orbitLine);
 
     const reference = targetPlanetReference[planet.key];
-    let planetGeometry;
-    if (planet.key === 'cerebro') {
-      planetGeometry = createBrainGeometry(planet.radius);
-    } else {
-      planetGeometry = new THREE.SphereGeometry(planet.radius, 64, 64);
-    }
+    let planetGeometry = new THREE.SphereGeometry(planet.radius, 64, 64);
     const mesh = new THREE.Mesh(
       planetGeometry,
       createPlanetMaterial(planet.key, planet.color)
