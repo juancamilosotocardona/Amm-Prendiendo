@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     jupiter: 'En este planeta pondrás a prueba la habilidad de tus manos y dedos. A través de juegos y actividades como agarrar, manipular, construir, ensartar y dibujar, estimularás la coordinación entre tus manos y tus ojos, desarrollando precisión, concentración y creatividad.',
     saturno: 'En este planeta aprenderás a realizar ejercicios de estiramiento corporal de manera adecuada. Descubrirás cómo estirar diferentes partes de tu cuerpo mediante movimientos suaves y controlados, favoreciendo la flexibilidad, la relajación y el cuidado de tus músculos después de realizar actividad física.',
   };
+  const defaultPlanetCatalog = [
     { key: 'cerebro', name: 'Mare', diameter: '1.400 km', distance: '5.9 B km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ffaaaa', orbitSpeed: 0.003, radius: 4.2, distanceScale: 240 },
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
     { key: 'venus', name: 'Planeta Danza', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
