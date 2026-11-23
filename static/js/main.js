@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const targetPlanetReference = {
     cerebro: { label: 'Mare', texture: '/static/images/planeta_base.jpeg', aspect: 1.0 },
-    marte: { label: 'Planeta Actividad Corporal', texture: '/static/images/Planeta%20_Activaci%C3%B3n.jpeg', aspect: 1.0 },
+    marte: { label: 'Planeta Actividad Corporal', texture: '/static/images/planeta-activacion.jpeg', aspect: 1.0 },
     venus: { label: 'Planeta Creación', texture: '/static/images/planeta-creacion.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     mercurio: { label: 'Motricidad y coordinación corporal', texture: '/static/images/planeta-logica.png', aspect: 1.18 },
