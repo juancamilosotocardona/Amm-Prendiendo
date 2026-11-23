@@ -7,6 +7,18 @@
 {% endif %}
 
 <section class="home-page">
+  <div class="entry-gate" id="entryGate" role="dialog" aria-modal="true" aria-labelledby="entryGateTitle" data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    <div class="entry-gate__panel">
+      <p class="eyebrow">Amm-Prendiendo</p>
+      <h2 id="entryGateTitle">¿Cómo quieres entrar?</h2>
+      <p>Inicia sesión si vas a publicar contenido, o entra como invitado para explorar el universo educativo.</p>
+      <div class="entry-gate__actions">
+        <button type="button" class="primary-button" id="guestEntryButton">Entrar como invitado</button>
+        <a href="{% url 'login' %}" class="secondary-button">Iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+
   <div class="solar-view">
     <div id="solar-canvas" aria-label="Sistema solar 3D"></div>
 
