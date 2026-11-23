@@ -75,9 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  if (!isAuthenticated && !guestAccessGranted && entryGate) {
-    toggleEntryGate(true);
-  } else if (entryGate) {
+  if (entryGate) {
     toggleEntryGate(false);
   }
 
