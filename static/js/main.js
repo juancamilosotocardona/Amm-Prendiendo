@@ -38,8 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { key: 'marte', name: 'Planeta Actividad Corporal', diameter: '6.779 km', distance: '227.9 M km', day: '24.6 h', year: '687 días', temperature: '-65°C', composition: 'Hierro, oxígeno, silicio', moons: 2, color: '#d66d47', orbitSpeed: 0.032, radius: 2.8, distanceScale: 58 },
     { key: 'jupiter', name: 'Planeta Manitas en Acción', diameter: '139.820 km', distance: '778.5 M km', day: '9.9 h', year: '11.9 años', temperature: '-110°C', composition: 'Hidrógeno y helio', moons: 95, color: '#d9a66d', orbitSpeed: 0.02, radius: 7.8, distanceScale: 96 },
     { key: 'saturno', name: 'Planeta Calma Corporal', diameter: '116.460 km', distance: '1.43 B km', day: '10.7 h', year: '29.4 años', temperature: '-140°C', composition: 'Hidrógeno, helio, metano', moons: 146, color: '#d3c089', orbitSpeed: 0.015, radius: 6.8, distanceScale: 126 },
-    { key: 'urano', name: 'Urano', diameter: '50.724 km', distance: '2.87 B km', day: '17 h', year: '84 años', temperature: '-195°C', composition: 'Hidrógeno, helio y metano', moons: 27, color: '#7fe2ff', orbitSpeed: 0.012, radius: 5.2, distanceScale: 164 },
-    { key: 'neptuno', name: 'Neptuno', diameter: '49.244 km', distance: '4.5 B km', day: '16 h', year: '165 años', temperature: '-200°C', composition: 'Hidrógeno, helio, metano', moons: 14, color: '#4e89ff', orbitSpeed: 0.009, radius: 5, distanceScale: 196 },
   ];
 
   const targetPlanetReference = {
