@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!canvasHost) return;
 
   const isAuthenticated = entryGate ? entryGate.dataset.authenticated === 'true' : false;
-  let guestAccessGranted = sessionStorage.getItem('planet-guest-access') === 'true';
+  let guestAccessGranted = true;
 
   const toggleEntryGate = (show) => {
     if (entryGate) {
