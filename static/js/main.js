@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const defaultPlanetCatalog = [
     { key: 'cerebro', name: 'Mare', diameter: '1.400 km', distance: '5.9 B km', day: 'N/A', year: 'N/A', temperature: '37°C', composition: 'Neuronas y sinapsis', moons: 0, color: '#ffaaaa', orbitSpeed: 0.003, radius: 4.2, distanceScale: 240 },
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
-    { key: 'venus', name: 'Venus', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
+    { key: 'venus', name: 'Planeta Danza', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
     { key: 'tierra', name: 'Tierra', diameter: '12.742 km', distance: '149.6 M km', day: '24 h', year: '365 días', temperature: '15°C', composition: 'Nitrógeno, oxígeno, silicio', moons: 1, color: '#3aa9ff', orbitSpeed: 0.038, radius: 3.6, distanceScale: 42 },
     { key: 'marte', name: 'Planeta Actividad Corporal', diameter: '6.779 km', distance: '227.9 M km', day: '24.6 h', year: '687 días', temperature: '-65°C', composition: 'Hierro, oxígeno, silicio', moons: 2, color: '#d66d47', orbitSpeed: 0.032, radius: 2.8, distanceScale: 58 },
     { key: 'jupiter', name: 'Júpiter', diameter: '139.820 km', distance: '778.5 M km', day: '9.9 h', year: '11.9 años', temperature: '-110°C', composition: 'Hidrógeno y helio', moons: 95, color: '#d9a66d', orbitSpeed: 0.02, radius: 7.8, distanceScale: 96 },
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const targetPlanetReference = {
     cerebro: { label: 'Mare', texture: '/static/images/planeta_base.jpeg', aspect: 1.0 },
     marte: { label: 'Planeta Actividad Corporal', texture: '/static/images/planeta-activacion.jpeg', aspect: 1.0 },
-    venus: { label: 'Planeta Creación', texture: '/static/images/planeta-creacion.png', aspect: 1.08 },
+    venus: { label: 'Planeta Danza', texture: '/static/images/Planeta_Danzante.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     mercurio: { label: 'Motricidad y coordinación corporal', texture: '/static/images/planeta-logica.png', aspect: 1.18 },
   };
