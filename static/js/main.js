@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     return new THREE.MeshStandardMaterial({
       map: texture,
-      color: planetColor,
+      color: planetKey === 'venus' ? 0xffffff : planetColor,
       emissive: new THREE.Color(planetColor).multiplyScalar(0.12),
       emissiveIntensity: 0.18,
       roughness: 0.82,
