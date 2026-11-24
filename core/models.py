@@ -168,8 +168,8 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
-    summary = models.TextField(help_text='Resumen breve visible en la vista principal.')
-    content = models.TextField(help_text='Texto completo de la publicación.')
+    summary = models.TextField(blank=True, default='')
+    content = models.TextField(blank=True, default='')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='posts')
     cover_image = models.FileField(upload_to='covers/%Y/%m/', blank=True, null=True)

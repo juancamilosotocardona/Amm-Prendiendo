@@ -55,22 +55,12 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = [
             'title',
-            'summary',
-            'content',
             'category',
-            'cover_image',
             'attachment',
-            'video_url',
-            'status',
         ]
         labels = {
             'title': 'Título de la publicación',
-            'summary': 'Resumen',
-            'content': 'Contenido',
-            'cover_image': 'Imagen de portada',
             'attachment': 'Archivo adjunto (PDF, DOCX, PPTX)',
-            'video_url': 'Enlace a video',
-            'status': 'Estado',
         }
         help_texts = {
             'status': 'Elige si la publicación será visible para visitantes o si quedará como borrador.',
@@ -129,15 +119,3 @@ class PostForm(forms.ModelForm):
         if len(title) < 5:
             raise ValidationError('El título debe tener al menos 5 caracteres.')
         return title
-
-    def clean_summary(self):
-        summary = self.cleaned_data.get('summary', '').strip()
-        if len(summary) < 20:
-            raise ValidationError('El resumen debe tener al menos 20 caracteres.')
-        return summary
-
-    def clean_content(self):
-        content = self.cleaned_data.get('content', '').strip()
-        if len(content) < 30:
-            raise ValidationError('El contenido debe tener al menos 30 caracteres.')
-        return content
