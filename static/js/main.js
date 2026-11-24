@@ -943,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const { rocket, exhaust } = createRocket();
-  let rocketDestination = getPlanetMeta('cerebro');
+  let rocketDestination = getPlanetMeta('mercurio');
   let rocketFlight = null;
   const initialRocketPosition = getRocketLandingPosition(rocketDestination);
   rocket.position.copy(initialRocketPosition);
