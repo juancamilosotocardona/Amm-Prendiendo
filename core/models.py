@@ -175,7 +175,7 @@ class Post(models.Model):
     cover_image = models.FileField(upload_to='covers/%Y/%m/', blank=True, null=True)
     attachment = models.FileField(upload_to='attachments/%Y/%m/', blank=True, null=True)
     video_url = models.URLField(blank=True, default='')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='published')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
