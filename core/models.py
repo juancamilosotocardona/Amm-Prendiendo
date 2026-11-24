@@ -94,7 +94,7 @@ def ensure_default_categories(sender=None, **kwargs):
         },
         {
             'slug': 'marte',
-            'name': 'Planeta Actividad Corporal',
+            'name': 'Planeta Activación Corporal',
             'description': 'En este planeta aprenderás la importancia de realizar un buen calentamiento corporal antes de comenzar cualquier actividad física. A través de movimientos suaves, ejercicios y juegos, descubrirás cómo preparar tus músculos y articulaciones para moverte de manera segura y divertida.',
             'accent_color': '#f97316',
             'orbit_color': '#f97316',

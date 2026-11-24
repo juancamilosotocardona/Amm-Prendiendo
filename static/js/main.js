@@ -35,14 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     { key: 'mercurio', name: 'Mercurio', diameter: '4.879 km', distance: '57.9 M km', day: '58.6 días', year: '88 días', temperature: '167°C', composition: 'Metales y silicatos', moons: 0, color: '#a8a7a1', orbitSpeed: 0.06, radius: 2.2, distanceScale: 24 },
     { key: 'venus', name: 'Planeta Danza', diameter: '12.104 km', distance: '108.2 M km', day: '243 días', year: '225 días', temperature: '464°C', composition: 'Dióxido de carbono y nitrógeno', moons: 0, color: '#d4b186', orbitSpeed: 0.045, radius: 3.2, distanceScale: 32 },
     { key: 'tierra', name: 'Tierra', diameter: '12.742 km', distance: '149.6 M km', day: '24 h', year: '365 días', temperature: '15°C', composition: 'Nitrógeno, oxígeno, silicio', moons: 1, color: '#3aa9ff', orbitSpeed: 0.038, radius: 3.6, distanceScale: 42 },
-    { key: 'marte', name: 'Planeta Actividad Corporal', diameter: '6.779 km', distance: '227.9 M km', day: '24.6 h', year: '687 días', temperature: '-65°C', composition: 'Hierro, oxígeno, silicio', moons: 2, color: '#d66d47', orbitSpeed: 0.032, radius: 2.8, distanceScale: 58 },
+    { key: 'marte', name: 'Planeta Activación Corporal', diameter: '6.779 km', distance: '227.9 M km', day: '24.6 h', year: '687 días', temperature: '-65°C', composition: 'Hierro, oxígeno, silicio', moons: 2, color: '#d66d47', orbitSpeed: 0.032, radius: 2.8, distanceScale: 58 },
     { key: 'jupiter', name: 'Planeta Manitas en Acción', diameter: '139.820 km', distance: '778.5 M km', day: '9.9 h', year: '11.9 años', temperature: '-110°C', composition: 'Hidrógeno y helio', moons: 95, color: '#d9a66d', orbitSpeed: 0.02, radius: 7.8, distanceScale: 96 },
     { key: 'saturno', name: 'Planeta Calma Corporal', diameter: '116.460 km', distance: '1.43 B km', day: '10.7 h', year: '29.4 años', temperature: '-140°C', composition: 'Hidrógeno, helio, metano', moons: 146, color: '#d3c089', orbitSpeed: 0.015, radius: 6.8, distanceScale: 126 },
   ];
 
   const targetPlanetReference = {
     cerebro: { label: 'Mare', texture: '/static/images/planeta_base.jpeg', aspect: 1.0 },
-    marte: { label: 'Planeta Actividad Corporal', texture: '/static/images/planeta-activacion.jpeg', aspect: 1.0 },
+    marte: { label: 'Planeta Activación Corporal', texture: '/static/images/planeta-activacion.jpeg', aspect: 1.0 },
     venus: { label: 'Planeta Danza', texture: '/static/images/planeta-danza.png', aspect: 1.08 },
     tierra: { label: 'Planeta Puentes Predeportivos', texture: '/static/images/planeta-puentes.png', aspect: 1.12 },
     saturno: { label: 'Planeta Calma Corporal', texture: '/static/images/calma.png', aspect: 1.0 },
